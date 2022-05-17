@@ -1,2 +1,3 @@
 # YOUR REPOSITORY NAME
-# AutMobRos-exercises
+# AutMobRos-exer
+In this branch the safety system of the robot was implemented
