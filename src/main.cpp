@@ -5,13 +5,13 @@
 #include <eeros/sequencer/Sequencer.hpp>
 #include <eeros/hal/HAL.hpp>
 #include "ControlSystem.hpp"
-#include "MyRobotSafetyProperties.hpp"
+#include "AutMobRoSSafetyProperties.hpp"
 #include "MainSequence.hpp"
 
 void signalHandler(int signum)
 {
     eeros::safety::SafetySystem::exitHandler();
-    eeros::sequencer::Sequencer::instance().abort();
+    eeros::sequencer::Sequencer::instance().abort(); //
 }
 
 int main(int argc, char **argv)
@@ -21,18 +21,18 @@ int main(int argc, char **argv)
     eeros::logger::Logger log = eeros::logger::Logger::getLogger();
 
     log.info() << "Starting template project...";
+
     log.info() << "Initializing hardware...";
-    log.info() << "Hello EEROS!";
-    // eeros::hal::HAL& hal = eeros::hal::HAL::instance();
-    // hal.readConfigFromFile(&argc, argv);
+    eeros::hal::HAL &hal = eeros::hal::HAL::instance();
+    hal.readConfigFromFile(&argc, argv);
 
     log.info() << "Initializing control system...";
-    ControlSystem cs(dt);
+    ControlSystem cs(0.1);
 
     log.info() << "Initializing safety system...";
-    MyRobotSafetyProperties sp(cs, dt);
+    AutMobRoSSafetyProperties sp(cs, dt);
     eeros::safety::SafetySystem ss(sp, dt);
-    cs.timedomain.registerSafetyEvent(ss, sp.doSystemOff); // fired if timedomain fails to run properly
+    cs.timedomain.registerSafetyEvent(ss, sp.abort); // fired if timedomain fails to run properly
     signal(SIGINT, signalHandler);
 
     log.info() << "Initializing sequencer...";
