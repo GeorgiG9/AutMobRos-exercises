@@ -7,9 +7,6 @@
 #include "AutMobRoSSafetyProperties.hpp"
 #include "ControlSystem.hpp"
 #include <eeros/sequencer/Wait.hpp>
-#include "customSteps/moveServoTo.hpp"
-#include "customSequences/orientationException.hpp"
-#include <eeros/sequencer/Monitor.hpp>
 
 class MainSequence : public eeros::sequencer::Sequence
 {
@@ -22,14 +19,8 @@ public:
           sp(sp),
           cs(cs),
 
-          sleep("Sleep", this),
-          moveServoTo("moveServoTo", this, cs),
-
-          checkOrientation(0.5, cs),
-          orientationException("Orientation exception", this, cs, checkOrientation),
-          orientationMonitor("Orientation monitor", this, checkOrientation, eeros::sequencer::SequenceProp::resume, &orientationException)
+          sleep("Sleep", this)
     {
-        addMonitor(&orientationMonitor);
         log.info() << "Sequence created: " << name;
     }
 
@@ -38,10 +29,7 @@ public:
         while (eeros::sequencer::Sequencer::running)
         {
             sleep(1.0);
-            moveServoTo(-0.5);
-            sleep(1.0);
-            moveServoTo(0.5);
-            sleep(1.0);
+            log.info() << cs.E2.getOut().getSignal();
         }
         return 0;
     }
@@ -52,10 +40,6 @@ private:
     AutMobRoSSafetyProperties &sp;
 
     eeros::sequencer::Wait sleep;
-    MoveServoTo moveServoTo;
-    CheckOrientation checkOrientation;
-    OrientationException orientationException;
-    eeros::sequencer::Monitor orientationMonitor;
 };
 
 #endif // MAINSEQUENCE_HPP_
